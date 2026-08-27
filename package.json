@@ -1,0 +1,9 @@
+{
+  "name": "token-rank",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "update": "node scripts/update.mjs",
+    "snapshot": "node scripts/update.mjs --snapshot-only"
+  }
+}

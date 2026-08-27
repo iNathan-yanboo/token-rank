@@ -345,6 +345,14 @@
     .method h2 { margin-top: 0; }
     .sources { columns: 2; gap: 24px; font-size: 13px; }
     .sources li { break-inside: avoid; margin: 0 0 8px; }
+    .credit {
+      margin: 20px 0 0;
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.01em;
+    }
+    .credit a { color: inherit; }
+    .credit a:hover { color: var(--blue); }
 
     .empty {
       text-align: center;
@@ -382,7 +390,7 @@
 
   <main class="wrap">
     <header class="hero">
-      <p class="kicker">公开价快照 · 2026年8月27日</p>
+      <p class="kicker">公开价快照</p>
       <h1>大模型 API<br>价格对比排名</h1>
       <p class="lede">覆盖文本与多模态对话模型，不含独立生图/生视频。国内厂商尽量铺全。统一按每百万 token 计，订阅制单独折算。</p>
     </header>
@@ -429,7 +437,8 @@
         <li>国内价优先用人民币刊例；海外价用美元再按 7.0 换算。排序看当前有效价。</li>
         <li>DeepSeek 自 8月17日起峰谷定价：北京时间工作日 9–12、14–18 为高峰，其余半价。</li>
         <li>长上下文加价（如 GPT-5.6 &gt;272K、Gemini Pro &gt;200K）未并入主表，见备注。</li>
-        <li>评分取 Artificial Analysis Intelligence Index 公开最高实测档（多为 max reasoning），快照 2026-08-27。未测或仅有估计值的写 —。</li>
+        <li id="aaNote">评分取 Artificial Analysis Intelligence Index 公开最高实测档（多为 max reasoning）。未测或仅有估计值的写 —。</li>
+        <li>数据在 data/latest.json，每次更新写入 data/history/ 日期快照。本地执行 npm run update 可拉取公开源并归档。</li>
         <li>零一万物、百川、商汤日日新按量价未在公开页稳定披露，订阅另列或从缺。</li>
       </ul>
     </section>
@@ -458,174 +467,14 @@
         <li><a href="https://artificialanalysis.ai/leaderboards/models/">Artificial Analysis Intelligence Index</a></li>
       </ol>
       <p>价格会变。下单前以各厂商控制台为准。本页仅作横向对照，不构成采购建议。</p>
+      <p class="credit" id="credit">iNathan · <a href="https://github.com/iNathan-yanboo/token-rank" target="_blank" rel="noopener">GitHub</a></p>
     </section>
   </main>
 
 <script>
-const USD_CNY = 7;
-const BUY = {
-  openai: "https://platform.openai.com/docs/pricing",
-  anthropic: "https://platform.claude.com/docs/en/about-claude/pricing",
-  google: "https://ai.google.dev/gemini-api/docs/pricing",
-  xai: "https://docs.x.ai/docs/models",
-  deepseek: "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
-  qwen: "https://help.aliyun.com/zh/model-studio/model-pricing",
-  kimi: "https://platform.kimi.com/",
-  doubao: "https://www.volcengine.com/product/doubao",
-  glm: "https://bigmodel.cn/pricing",
-  mimo: "https://mimo.mi.com/docs/zh-CN/price/pay-as-you-go",
-  minimax: "https://platform.minimaxi.com/docs/guides/pricing-paygo",
-  step: "https://platform.stepfun.com/docs/zh/guides/pricing/details",
-  hunyuan: "https://cloud.tencent.cn/document/product/1823/130055",
-  ernie: "https://cloud.baidu.com/doc/qianfan/s/wmh4sv6ya",
-  longcat: "https://longcat.chat/platform/docs/zh/api-pay-as-you-go",
-  spark: "https://www.xfyun.cn/doc/spark/TokenPlan.html",
-  zhinao: "https://ai.360.com/open/zh/providers/360zhinao",
-  sky: "https://www.apifree.ai/model/skywork-ai/skyclaw-v1",
-  mistral: "https://mistral.ai/pricing"
-};
-const MODELS = [
-  { n:"GPT-5.5 Pro", v:"OpenAI", r:"海外", m:"multimodal", in:30, out:180, cache:null, unit:"usd", aa:null, url:BUY.openai, note:"旗舰推理，最贵档；AA 尚未公布 Index" },
-  { n:"Claude Fable 5", v:"Anthropic", r:"海外", m:"multimodal", in:10, out:50, cache:1, unit:"usd", aa:62.1, url:BUY.anthropic, note:"1M 上下文" },
-  { n:"Kimi K3", v:"月之暗面", r:"国内", m:"multimodal", in:20, out:100, cache:2, unit:"cny", aa:59.7, url:BUY.kimi, note:"1M 上下文，始终思考" },
-  { n:"GPT-5.6 Sol", v:"OpenAI", r:"海外", m:"multimodal", in:5, out:30, cache:0.5, unit:"usd", aa:60.9, url:BUY.openai, note:"当前旗舰；>272K 加价" },
-  { n:"Claude Opus 5", v:"Anthropic", r:"海外", m:"multimodal", in:5, out:25, cache:0.5, unit:"usd", aa:63.1, url:BUY.anthropic, note:"与 Opus 4.8 同价" },
-  { n:"Qwen3.8-Max", v:"阿里云百炼", r:"国内", m:"multimodal", in:12, out:36, cache:1.5, unit:"cny", aa:58.1, url:BUY.qwen, note:"国内刊例" },
-  { n:"Qwen3.7-Max", v:"阿里云百炼", r:"国内", m:"text", in:12, out:36, cache:null, unit:"cny", aa:46.7, url:BUY.qwen, note:"刊例；曾有限时5折" },
-  { n:"DeepSeek V4-Pro 高峰", v:"DeepSeek", r:"国内", m:"text", in:9, out:27, cache:0.3, unit:"cny", aa:53, url:BUY.deepseek, note:"工作日 9–12 / 14–18；AA 为 V4 Pro 0813 max" },
-  { n:"GLM-5.3", v:"智谱", r:"国内", m:"text", in:8, out:28, cache:2, unit:"cny", aa:59.5, url:BUY.glm, note:"与 GLM-5.2 同价，1M" },
-  { n:"GLM-5.2", v:"智谱", r:"国内", m:"text", in:8, out:28, cache:2, unit:"cny", aa:52.6, url:BUY.glm, note:"1M 上下文" },
-  { n:"GPT-5.4", v:"OpenAI", r:"海外", m:"multimodal", in:2.5, out:15, cache:0.25, unit:"usd", aa:53.1, url:BUY.openai },
-  { n:"Grok 4", v:"xAI", r:"海外", m:"multimodal", in:3, out:15, cache:null, unit:"usd", aa:null, url:BUY.xai },
-  { n:"Kimi K2.6", v:"月之暗面", r:"国内", m:"multimodal", in:6.5, out:27, cache:1.1, unit:"cny", aa:45.1, url:BUY.kimi, note:"256K" },
-  { n:"Doubao-Seed-2.1-pro", v:"字节火山", r:"国内", m:"multimodal", in:6, out:30, cache:1.2, unit:"cny", aa:null, url:BUY.doubao },
-  { n:"Doubao-Seed-Evolving", v:"字节火山", r:"国内", m:"text", in:6, out:30, cache:1.2, unit:"cny", aa:null, url:BUY.doubao, note:"Coding / Agent" },
-  { n:"ERNIE 5.0", v:"百度千帆", r:"国内", m:"text", in:6, out:24, cache:null, unit:"cny", aa:null, url:BUY.ernie, note:"输入≤32K 档" },
-  { n:"GLM-5.1", v:"智谱", r:"国内", m:"text", in:6, out:24, cache:1.3, unit:"cny", aa:41.0, url:BUY.glm, note:"输入≤32K 档" },
-  { n:"LongCat-2.0 刊例", v:"美团", r:"国内", m:"text", in:5, out:20, cache:0.1, unit:"cny", aa:34.0, url:BUY.longcat },
-  { n:"GLM-5V-Turbo", v:"智谱", r:"国内", m:"multimodal", in:5, out:22, cache:1.2, unit:"cny", aa:35.3, url:BUY.glm, note:"输入≤32K" },
-  { n:"DeepSeek V4-Pro 空闲", v:"DeepSeek", r:"国内", m:"text", in:4.5, out:13.5, cache:0.15, unit:"cny", aa:53, url:BUY.deepseek, note:"高峰半价" },
-  { n:"Kimi K2.5", v:"月之暗面", r:"国内", m:"multimodal", in:4, out:21, cache:0.7, unit:"cny", aa:36.0, url:BUY.kimi, note:"262K" },
-  { n:"ERNIE 5.1", v:"百度千帆", r:"国内", m:"text", in:4, out:18, cache:null, unit:"cny", aa:null, url:BUY.ernie, note:"输入≤32K 档" },
-  { n:"GLM-5", v:"智谱", r:"国内", m:"text", in:4, out:18, cache:1, unit:"cny", aa:40.6, url:BUY.glm, note:"输入≤32K 档" },
-  { n:"MiniMax-M2.7-highspeed", v:"MiniMax", r:"国内", m:"text", in:4.2, out:16.8, cache:0.42, unit:"cny", aa:null, url:BUY.minimax },
-  { n:"Doubao-Seed-2.1-turbo", v:"字节火山", r:"国内", m:"text", in:3, out:15, cache:0.6, unit:"cny", aa:null, url:BUY.doubao },
-  { n:"HY Vision 1.5", v:"腾讯混元", r:"国内", m:"multimodal", in:3, out:9, cache:null, unit:"cny", aa:null, url:BUY.hunyuan },
-  { n:"Spark X2", v:"讯飞星火", r:"国内", m:"text", in:3, out:3, cache:0.6, unit:"cny", aa:null, url:BUY.spark, note:"由积分 300/300 折算" },
-  { n:"MiMo-V2.5-Pro", v:"小米", r:"国内", m:"text", in:3, out:6, cache:0.025, unit:"cny", aa:43, url:BUY.mimo },
-  { n:"DeepSeek V4-Flash 高峰", v:"DeepSeek", r:"国内", m:"text", in:3, out:9, cache:0.1, unit:"cny", aa:52, url:BUY.deepseek, note:"AA 为 V4 Flash 0731 max" },
-  { n:"GPT-5.6 Terra", v:"OpenAI", r:"海外", m:"multimodal", in:2, out:12, cache:0.2, unit:"usd", aa:56.6, url:BUY.openai, note:"7月30日降20%" },
-  { n:"Gemini 3.1 Pro", v:"Google", r:"海外", m:"multimodal", in:2, out:12, cache:null, unit:"usd", aa:47.7, url:BUY.google, note:">200K 为 $4/$18" },
-  { n:"Grok 4.6", v:"xAI", r:"海外", m:"multimodal", in:2, out:6, cache:0.5, unit:"usd", aa:60.9, url:BUY.xai, note:"<200K 档" },
-  { n:"Claude Sonnet 5", v:"Anthropic", r:"海外", m:"multimodal", in:2, out:10, cache:0.2, unit:"usd", aa:55.3, url:BUY.anthropic, note:"$2/$10 已转正" },
-  { n:"Qwen3.7-Plus", v:"阿里云百炼", r:"国内", m:"multimodal", in:2, out:8, cache:0.4, unit:"cny", aa:39.4, url:BUY.qwen, note:"≤256K；限时8折 1.6/6.4", promoIn:1.6, promoOut:6.4 },
-  { n:"360zhinao-pro", v:"360智脑", r:"国内", m:"text", in:2, out:5, cache:null, unit:"cny", aa:null, url:BUY.zhinao },
-  { n:"LongCat-2.0 限时", v:"美团", r:"国内", m:"text", in:2, out:8, cache:0.04, unit:"cny", aa:34.0, url:BUY.longcat, promo:true, note:"上线限时折扣" },
-  { n:"MiniMax-M3", v:"MiniMax", r:"国内", m:"multimodal", in:2.1, out:8.4, cache:0.42, unit:"cny", aa:45.4, url:BUY.minimax, note:"≤512K，永久五折后" },
-  { n:"MiniMax-M2.7", v:"MiniMax", r:"国内", m:"text", in:2.1, out:8.4, cache:0.42, unit:"cny", aa:null, url:BUY.minimax },
-  { n:"Gemini 3.6 Flash", v:"Google", r:"海外", m:"multimodal", in:1.5, out:7.5, cache:0.15, unit:"usd", aa:51.6, url:BUY.google },
-  { n:"DeepSeek V4-Flash 空闲", v:"DeepSeek", r:"国内", m:"text", in:1.5, out:4.5, cache:0.05, unit:"cny", aa:52, url:BUY.deepseek },
-  { n:"step-3.7-flash", v:"阶跃星辰", r:"国内", m:"multimodal", in:1.35, out:8.1, cache:0.27, unit:"cny", aa:30.9, url:BUY.step, note:"图/视频理解" },
-  { n:"Claude Haiku 4.5", v:"Anthropic", r:"海外", m:"multimodal", in:1, out:5, cache:0.1, unit:"usd", aa:30, url:BUY.anthropic },
-  { n:"qwen3.8-flash", v:"阿里云百炼", r:"国内", m:"multimodal", in:1, out:3, cache:null, unit:"cny", aa:null, url:BUY.qwen },
-  { n:"Hunyuan Hy3", v:"腾讯云 TokenHub", r:"国内", m:"text", in:1, out:4, cache:0.25, unit:"cny", aa:42.2, url:BUY.hunyuan },
-  { n:"Spark X2 Flash", v:"讯飞星火", r:"国内", m:"text", in:1, out:2, cache:0.2, unit:"cny", aa:null, url:BUY.spark, note:"由积分 100/200 折算" },
-  { n:"MiMo-V2.5", v:"小米", r:"国内", m:"text", in:1, out:2, cache:0.02, unit:"cny", aa:38, url:BUY.mimo },
-  { n:"ERNIE 4.5 Turbo", v:"百度千帆", r:"国内", m:"text", in:0.8, out:3.2, cache:0.2, unit:"cny", aa:null, url:BUY.ernie },
-  { n:"GLM-5.3-Flash", v:"智谱", r:"国内", m:"multimodal", in:0.8, out:2.8, cache:0.23, unit:"cny", aa:57, url:BUY.glm, note:"刊例；限时两周5折 0.4/1.4", promoIn:0.4, promoOut:1.4 },
-  { n:"GPT-5.4 Mini", v:"OpenAI", r:"海外", m:"multimodal", in:0.75, out:4.5, cache:0.075, unit:"usd", aa:40.9, url:BUY.openai },
-  { n:"Gemini 3.7 Flash", v:"Google", r:"海外", m:"multimodal", in:0.75, out:3.75, cache:null, unit:"usd", aa:56.0, url:BUY.google, promo:true, note:"引入价至 2026-12-31" },
-  { n:"step-3.5-flash", v:"阶跃星辰", r:"国内", m:"text", in:0.7, out:2.1, cache:0.14, unit:"cny", aa:26.5, url:BUY.step },
-  { n:"Doubao-Seed-2.0-lite", v:"字节火山", r:"国内", m:"text", in:0.6, out:3.6, cache:null, unit:"cny", aa:null, url:BUY.doubao, note:"区间价下限" },
-  { n:"SkyClaw-v1.0", v:"昆仑天工", r:"国内", m:"text", in:0.5, out:4, cache:null, unit:"cny", aa:null, url:BUY.sky, note:"公开渠道价，或有免费窗" },
-  { n:"Mistral Large 3", v:"Mistral", r:"海外", m:"multimodal", in:0.5, out:1.5, cache:null, unit:"usd", aa:16, url:BUY.mistral },
-  { n:"Hunyuan-a13b", v:"腾讯混元", r:"国内", m:"text", in:0.5, out:2, cache:null, unit:"cny", aa:null, url:BUY.hunyuan },
-  { n:"SkyClaw-v1.0-lite", v:"昆仑天工", r:"国内", m:"text", in:0.3, out:2, cache:null, unit:"cny", aa:null, url:"https://www.apifree.ai/model/skywork-ai/skyclaw-v1-lite" },
-  { n:"Gemini 3.5 Flash-Lite", v:"Google", r:"海外", m:"multimodal", in:0.3, out:2.5, cache:null, unit:"usd", aa:37.4, url:BUY.google },
-  { n:"GPT-5 mini", v:"OpenAI", r:"海外", m:"multimodal", in:0.25, out:2, cache:0.125, unit:"usd", aa:25.8, url:BUY.openai },
-  { n:"GPT-5.6 Luna", v:"OpenAI", r:"海外", m:"multimodal", in:0.2, out:1.2, cache:0.02, unit:"usd", aa:52.3, url:BUY.openai, note:"7月30日降80%" },
-  { n:"Grok 4 Fast", v:"xAI", r:"海外", m:"multimodal", in:0.2, out:0.5, cache:null, unit:"usd", aa:null, url:BUY.xai },
-  { n:"GPT-5.4 Nano", v:"OpenAI", r:"海外", m:"multimodal", in:0.2, out:1.25, cache:0.02, unit:"usd", aa:39.7, url:BUY.openai },
-  { n:"qwen3.7-flash", v:"阿里云百炼", r:"国内", m:"multimodal", in:0.2, out:0.8, cache:0.04, unit:"cny", aa:null, url:BUY.qwen, note:"输入≤32K" },
-  { n:"Doubao-Seed-2.0-mini", v:"字节火山", r:"国内", m:"text", in:0.2, out:2, cache:null, unit:"cny", aa:null, url:BUY.doubao, note:"区间价下限" },
-  { n:"GPT-4o mini", v:"OpenAI", r:"海外", m:"multimodal", in:0.15, out:0.6, cache:0.075, unit:"usd", aa:6.7, url:BUY.openai },
-  { n:"Gemini 2.5 Flash-Lite", v:"Google", r:"海外", m:"multimodal", in:0.1, out:0.4, cache:null, unit:"usd", aa:6.7, url:BUY.google },
-  { n:"Mistral Small 4", v:"Mistral", r:"海外", m:"text", in:0.1, out:0.3, cache:null, unit:"usd", aa:20, url:BUY.mistral },
-  { n:"GPT-5 nano", v:"OpenAI", r:"海外", m:"text", in:0.05, out:0.4, cache:0.025, unit:"usd", aa:20.1, url:BUY.openai }
-];
-
-const PLANS = [
-  {
-    title: "小米 MiMo Token Plan",
-    url: "https://mimo.mi.com/docs/zh-CN/price/token-plan",
-    meta: "编程工具专用 API Key（tp-xxxxx）。Base URL：token-plan-cn.xiaomimimo.com。禁止脚本/业务后端。",
-    rows: [
-      ["Lite", "¥39 / $6", "4.1B Credits"],
-      ["Standard", "¥99 / $16", "11B Credits"],
-      ["Pro", "¥329 / $50", "38B Credits"],
-      ["Max", "¥659 / $100", "82B Credits"]
-    ],
-    eq: "mimo-v2.5 未命中输入 100 Credits/token、输出 200。Lite 全部跑 v2.5 时，约合输入 ¥0.95 / 百万，综合（100万入+25万出）约 ¥1.43，略低于按量 ¥1.50。夜间 0:00–8:00 消耗 ×0.8。年付 88 折。"
-  },
-  {
-    title: "阿里云百炼 Token Plan",
-    url: "https://help.aliyun.com/zh/model-studio/token-plan-personal-overview",
-    meta: "Credits 计量，覆盖 Qwen / DeepSeek / GLM 等。个人版按 5 小时 + 周窗口；团队按席位。",
-    rows: [
-      ["个人 Lite", "¥39 /月", "700 Credits / 5h"],
-      ["个人 Standard", "¥139 /月", "3000 Credits / 5h"],
-      ["个人 Pro", "¥499 /月", "12000 Credits / 5h"],
-      ["团队标准席", "¥150 /席/月 限时", "2.5万 Credits /月"]
-    ],
-    eq: "不同模型 Credits 倍率不同，无法直接换算成统一 token 单价。适合要在多家模型间切换的团队。"
-  },
-  {
-    title: "智谱 GLM Coding Plan",
-    url: "https://www.bigmodel.cn/glm-coding",
-    meta: "连续包月 + 每周 Credits。兼容 ZCode / Claude Code 等。新用户价已与海外看齐。",
-    rows: [
-      ["Lite", "¥118 /月", "1万 Credits /周"],
-      ["Pro", "¥538 /月", "6万 Credits /周"],
-      ["Max", "¥1078 /月", "14万 Credits /周"]
-    ],
-    eq: "包季 8 折、包年 7 折。另有 5 小时窗口。老用户 V1/V2 可按旧价续。"
-  },
-  {
-    title: "MiniMax Token Plan",
-    url: "https://platform.minimaxi.com/subscribe/token-plan",
-    meta: "订阅 Key 与按量 Key 隔离。覆盖 M3 / M2.7 / 图像 / 语音同一额度。按 5 小时 + 周窗口，不按百万 token 标价。",
-    rows: [
-      ["Plus", "¥49 /月", "约 3–4 Agent"],
-      ["Max", "¥119 /月", "约 4–5 Agent"],
-      ["Ultra", "¥469 /月", "约 6–7 Agent"]
-    ],
-    eq: "积分包 1000 积分 = ¥7，按刊例折算。Starter ¥29 仅老用户续订。"
-  },
-  {
-    title: "讯飞星辰 Astron Token Plan",
-    url: "https://maas.xfyun.cn/packageSubscription",
-    meta: "企业席位制。OpenAI / Anthropic 双协议。可调 Spark、GLM、DeepSeek、Kimi、MiniMax、Qwen。",
-    rows: [
-      ["标准成员", "¥200 /席/月", "2万积分 · 200万 TPM"],
-      ["高级成员", "¥600 /席/月", "6万积分 · 300万 TPM"],
-      ["尊享成员", "¥2000 /席/月", "20万积分 · 500万 TPM"]
-    ],
-    eq: "Spark-X2 输入/输出各 300 积分/百万。夜间与周末消耗 ×0.8。另有 Astron Coding Plan（约 ¥39 / ¥199）。"
-  },
-  {
-    title: "百度千帆 Token Plan 个人版",
-    url: "https://cloud.baidu.com/product/codingplan",
-    meta: "专属 Key。OpenAI：qianfan.baidubce.com/v2/tokenplan/personal。不区分模型与输入输出，统一扣 Token。",
-    rows: [
-      ["Mini", "¥9.9 /月", "1000万 Token"],
-      ["Lite", "¥40 /月", "4200万 Token"],
-      ["Pro", "¥200 /月", "2.3亿 Token"],
-      ["Max", "¥600 /月", "7亿 Token"]
-    ],
-    eq: "按官方文档刊例。营销页有首购五折（4.9 起）。折合约 ¥0.86–0.99 / 百万混合 Token。"
-  }
-];
-
+let USD_CNY = 7;
+let MODELS = [];
+let PLANS = [];
 const state = {
   region: "all",
   modal: "all",
@@ -716,7 +565,7 @@ function renderTable() {
   const ranked = [...rows].sort((a,b)=>a.blend-b.blend);
   renderStats(ranked);
   tb.innerHTML = rows.map((m) => {
-    const rank = ranked.findIndex(x => x.n === m.n && x.v === m.v) + 1;
+    const rank = ranked.findIndex(x => x.id === m.id) + 1;
     const cheap = rank <= 8;
     const dear = rank >= ranked.length - 4;
     const width = Math.max(6, Math.min(100, (m.blend / max) * 100));
@@ -824,14 +673,49 @@ function syncStickyHead() {
   document.documentElement.style.setProperty("--sticky-head-top", top + "px");
 }
 
-renderFilters();
-renderTable();
-renderPlans();
-syncStickyHead();
-new ResizeObserver(syncStickyHead).observe(document.querySelector(".toolbar"));
-window.addEventListener("resize", () => {
+function formatSnap(date) {
+  const [y, m, d] = date.split("-");
+  return `${y}年${Number(m)}月${Number(d)}日`;
+}
+
+async function boot() {
+  const data = await fetch("data/latest.json").then(r => {
+    if (!r.ok) throw new Error("latest.json " + r.status);
+    return r.json();
+  });
+  MODELS = data.models;
+  PLANS = data.plans;
+  USD_CNY = data.fx.usdCny;
+  const when = formatSnap(data.date);
+  const kicker = document.querySelector(".kicker");
+  if (kicker) kicker.textContent = `公开价快照 · ${when}`;
+  document.title = `大模型 API 价格对比 · ${when}`;
+  const aa = document.getElementById("aaNote");
+  if (aa) aa.textContent = `评分取 Artificial Analysis Intelligence Index 公开最高实测档（多为 max reasoning），快照 ${when}。未测或仅有估计值的写 —。`;
+  const credit = document.getElementById("credit");
+  if (credit) {
+    const gh = data.github || "https://github.com/iNathan-yanboo/token-rank";
+    const name = data.author || "iNathan";
+    credit.innerHTML = `${name} · <a href="${gh}" target="_blank" rel="noopener">GitHub</a>`;
+  }
+  renderFilters();
+  renderTable();
+  renderPlans();
   syncStickyHead();
-  pinHead();
+  new ResizeObserver(syncStickyHead).observe(document.querySelector(".toolbar"));
+  window.addEventListener("resize", () => {
+    syncStickyHead();
+    pinHead();
+  });
+}
+
+boot().catch(err => {
+  const empty = document.getElementById("empty");
+  if (empty) {
+    empty.hidden = false;
+    empty.textContent = "数据加载失败";
+  }
+  console.error(err);
 });
 </script>
 </body>
