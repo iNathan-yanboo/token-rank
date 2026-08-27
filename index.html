@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>大模型 API 价格对比 · 2026年8月</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --bg-elevated: rgba(255, 255, 255, 0.72);
+      --surface: #ffffff;
+      --surface-2: #fbfbfd;
+      --text: #1d1d1f;
+      --text-2: #6e6e73;
+      --text-3: #86868b;
+      --line: rgba(0, 0, 0, 0.08);
+      --blue: #0071e3;
+      --blue-press: #0077ed;
+      --green: #248a3d;
+      --orange: #c93400;
+      --fill: rgba(0, 0, 0, 0.04);
+      --fill-2: rgba(0, 0, 0, 0.06);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+      --radius: 18px;
+      --nav-h: 52px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #000000;
+        --bg-elevated: rgba(28, 28, 30, 0.72);
+        --surface: #1c1c1e;
+        --surface-2: #2c2c2e;
+        --text: #f5f5f7;
+        --text-2: #a1a1a6;
+        --text-3: #6e6e73;
+        --line: rgba(255, 255, 255, 0.1);
+        --fill: rgba(255, 255, 255, 0.08);
+        --fill-2: rgba(255, 255, 255, 0.12);
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.45);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #000000;
+      --bg-elevated: rgba(28, 28, 30, 0.72);
+      --surface: #1c1c1e;
+      --surface-2: #2c2c2e;
+      --text: #f5f5f7;
+      --text-2: #a1a1a6;
+      --text-3: #6e6e73;
+      --line: rgba(255, 255, 255, 0.1);
+      --fill: rgba(255, 255, 255, 0.08);
+      --fill-2: rgba(255, 255, 255, 0.12);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font: 100%/1.47 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      letter-spacing: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select {
+      font: inherit;
+      color: inherit;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      background: var(--bg-elevated);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid transparent;
+      background-clip: padding-box;
+    }
+    .nav::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 1px;
+      background: linear-gradient(to bottom, transparent, var(--line));
+      pointer-events: none;
+    }
+    .brand {
+      font-size: 15px;
+      font-weight: 590;
+      letter-spacing: -0.01em;
+    }
+    .nav-actions { display: flex; gap: 8px; align-items: center; }
+    .ghost {
+      appearance: none;
+      border: 0;
+      background: var(--fill);
+      color: var(--text);
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 980px;
+      cursor: pointer;
+      transition: transform 100ms ease-out, background 160ms var(--ease);
+    }
+    .ghost:hover { background: var(--fill-2); }
+    .ghost:active { transform: scale(0.97); }
+
+    .wrap { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+
+    .hero { padding: 56px 0 28px; }
+    .kicker {
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 510;
+      letter-spacing: 0.01em;
+      margin: 0 0 10px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+      font-weight: 700;
+      font-optical-sizing: auto;
+    }
+    .lede {
+      margin: 16px 0 0;
+      max-width: 640px;
+      color: var(--text-2);
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 36px 0 8px;
+    }
+    .stat {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 20px 20px 18px;
+      box-shadow: var(--shadow);
+    }
+    .stat .label { font-size: 12px; color: var(--text-3); margin-bottom: 8px; }
+    .stat .value {
+      font-size: clamp(1.05rem, 1.8vw, 1.5rem);
+      letter-spacing: -0.03em;
+      font-weight: 650;
+      line-height: 1.15;
+    }
+    .stat .hint { margin-top: 8px; font-size: 12px; color: var(--text-2); }
+
+    .toolbar {
+      position: sticky;
+      top: var(--nav-h);
+      z-index: 30;
+      margin: 28px 0 0;
+      padding: 10px 0 8px;
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+    }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .chip {
+      appearance: none;
+      border: 0;
+      background: var(--fill);
+      height: 32px;
+      padding: 0 13px;
+      border-radius: 980px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text);
+      transition: transform 100ms ease-out, background 160ms var(--ease), color 160ms var(--ease);
+    }
+    .chip:active { transform: scale(0.97); }
+    .chip.on {
+      background: var(--text);
+      color: var(--bg);
+    }
+    .search {
+      margin-left: auto;
+      height: 36px;
+      width: min(280px, 100%);
+      border: 0;
+      border-radius: 12px;
+      background: var(--fill);
+      padding: 0 12px;
+      outline: none;
+    }
+    .search:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 28%, transparent); }
+
+    .note {
+      color: var(--text-3);
+      font-size: 12px;
+      margin: 8px 0 0;
+    }
+
+    .table-card {
+      background: var(--surface);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: visible;
+      margin-top: 12px;
+    }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 13px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+    .table-head-pin {
+      position: sticky;
+      top: var(--sticky-head-top, 104px);
+      z-index: 25;
+      background: var(--surface);
+      border-top-left-radius: 22px;
+      border-top-right-radius: 22px;
+      box-shadow: 0 -12px 0 var(--bg);
+    }
+    .table-head-pin table { width: 100%; }
+    .table-head-pin th {
+      font-size: 11px;
+      font-weight: 590;
+      color: var(--text-3);
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      user-select: none;
+      background: var(--surface);
+      box-shadow: 0 1px 0 var(--line);
+    }
+    .table-card > table thead { display: none; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:last-child td:first-child { border-bottom-left-radius: 22px; }
+    tbody tr:last-child td:last-child { border-bottom-right-radius: 22px; }
+    tbody tr { transition: background 140ms var(--ease); }
+    tbody tr:hover { background: var(--fill); }
+    .rank {
+      width: 44px;
+      color: var(--text-3);
+      font-variant-numeric: tabular-nums;
+    }
+    .model { font-weight: 590; letter-spacing: -0.01em; }
+    .model a { color: inherit; text-decoration: none; }
+    .model a:hover { color: var(--blue); text-decoration: underline; }
+    .sub { color: var(--text-3); font-size: 11px; margin-top: 2px; }
+    .num { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .cheap { color: var(--green); font-weight: 590; }
+    .dear { color: var(--orange); }
+    .bar {
+      height: 4px;
+      border-radius: 99px;
+      background: var(--fill-2);
+      width: 92px;
+      overflow: hidden;
+    }
+    .bar > i {
+      display: block;
+      height: 100%;
+      background: var(--blue);
+      border-radius: inherit;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 20px;
+      padding: 0 7px;
+      border-radius: 6px;
+      background: var(--fill);
+      color: var(--text-2);
+      font-size: 11px;
+      margin-right: 4px;
+    }
+    .tag.promo { background: rgba(0, 113, 227, 0.12); color: var(--blue); }
+
+    h2 {
+      margin: 56px 0 8px;
+      font-size: 28px;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+    .section-lead { color: var(--text-2); margin: 0 0 18px; font-size: 15px; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .plan {
+      background: var(--surface);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .plan h3 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+    .plan .meta { color: var(--text-2); font-size: 13px; margin-bottom: 14px; }
+    .tiers { width: 100%; }
+    .tiers td { padding: 8px 0; font-size: 13px; }
+    .eq { margin-top: 10px; font-size: 12px; color: var(--text-2); }
+    .plan-buy {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      margin-top: 14px;
+      height: 32px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 980px;
+      background: var(--text);
+      color: var(--bg);
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 100ms ease-out, opacity 160ms var(--ease);
+    }
+    .plan-buy:hover { text-decoration: none; opacity: 0.88; }
+    .plan-buy:active { transform: scale(0.97); }
+
+    .method, .foot {
+      margin: 48px 0;
+      color: var(--text-2);
+      font-size: 14px;
+    }
+    .method h2 { margin-top: 0; }
+    .sources { columns: 2; gap: 24px; font-size: 13px; }
+    .sources li { break-inside: avoid; margin: 0 0 8px; }
+
+    .empty {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-3);
+    }
+
+    @media (max-width: 860px) {
+      .stats, .cards, .sources { grid-template-columns: 1fr; columns: 1; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .search { margin-left: 0; width: 100%; }
+      .hide-sm { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { transition: none !important; }
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      .nav, .toolbar, th {
+        backdrop-filter: none;
+        background: var(--surface);
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">Token Rank</div>
+    <div class="nav-actions">
+      <button class="ghost" id="currencyBtn" type="button">人民币</button>
+      <button class="ghost" id="themeBtn" type="button">外观</button>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <header class="hero">
+      <p class="kicker">公开价快照 · 2026年8月27日</p>
+      <h1>大模型 API<br>价格对比排名</h1>
+      <p class="lede">覆盖文本与多模态对话模型，不含独立生图/生视频。国内厂商尽量铺全。统一按每百万 token 计，订阅制单独折算。</p>
+    </header>
+
+    <section class="stats" id="stats"></section>
+
+    <section id="paygo">
+      <div class="toolbar">
+        <div class="filters" id="filters"></div>
+        <p class="note">综合分 = 100万输入 + 25万输出。评分 = Artificial Analysis Intelligence Index（2026-08-27）。汇率按 1 USD = 7.0 CNY。模型名链到官网定价页。</p>
+      </div>
+      <div class="table-card">
+        <div class="table-head-pin" id="headPin"></div>
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="rank">#</th>
+              <th data-sort="name">模型</th>
+              <th data-sort="region">地区</th>
+              <th data-sort="in">输入 / 百万</th>
+              <th data-sort="out">输出 / 百万</th>
+              <th data-sort="blend">综合</th>
+              <th data-sort="aa">评分</th>
+              <th class="hide-sm" data-sort="cache">缓存命中</th>
+              <th class="hide-sm">说明</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="empty" id="empty" hidden>没有匹配结果</div>
+      </div>
+    </section>
+
+    <section id="plans">
+      <h2>订阅制 + API</h2>
+      <p class="section-lead">对外公开、带独立 API Key / Base URL 的额度包。多数限定编程工具场景，不能与按量余额混用。</p>
+      <div class="cards" id="planCards"></div>
+    </section>
+
+    <section class="method">
+      <h2>口径</h2>
+      <ul>
+        <li>只收录文本生成与多模态理解（图/视频入、文本出）。独立生图、生视频、TTS 不进排名。</li>
+        <li>国内价优先用人民币刊例；海外价用美元再按 7.0 换算。排序看当前有效价。</li>
+        <li>DeepSeek 自 8月17日起峰谷定价：北京时间工作日 9–12、14–18 为高峰，其余半价。</li>
+        <li>长上下文加价（如 GPT-5.6 &gt;272K、Gemini Pro &gt;200K）未并入主表，见备注。</li>
+        <li>评分取 Artificial Analysis Intelligence Index 公开最高实测档（多为 max reasoning），快照 2026-08-27。未测或仅有估计值的写 —。</li>
+        <li>零一万物、百川、商汤日日新按量价未在公开页稳定披露，订阅另列或从缺。</li>
+      </ul>
+    </section>
+
+    <section class="foot">
+      <h2>来源</h2>
+      <ol class="sources">
+        <li><a href="https://platform.openai.com/docs/pricing">OpenAI Pricing</a></li>
+        <li><a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic Pricing</a></li>
+        <li><a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini API Pricing</a></li>
+        <li><a href="https://docs.x.ai/developers/models/grok-4.6">xAI Grok 4.6</a></li>
+        <li><a href="https://api-docs.deepseek.com/zh-cn/quick_start/pricing/">DeepSeek 模型与价格</a></li>
+        <li><a href="https://help.aliyun.com/zh/model-studio/model-pricing">阿里云百炼模型价格</a></li>
+        <li><a href="https://platform.kimi.com/">Kimi API 开放平台</a></li>
+        <li><a href="https://www.volcengine.com/product/doubao">火山引擎豆包</a></li>
+        <li><a href="https://bigmodel.cn/pricing">智谱 BigModel 定价</a></li>
+        <li><a href="https://mimo.mi.com/docs/zh-CN/price/pay-as-you-go">小米 MiMo 按量价</a></li>
+        <li><a href="https://mimo.mi.com/docs/zh-CN/price/token-plan">小米 MiMo Token Plan</a></li>
+        <li><a href="https://platform.minimaxi.com/docs/guides/pricing-paygo">MiniMax 按量计费</a></li>
+        <li><a href="https://platform.stepfun.com/docs/zh/guides/pricing/details">阶跃星辰定价</a></li>
+        <li><a href="https://cloud.tencent.cn/document/product/1823/130055">腾讯云 TokenHub 价格</a></li>
+        <li><a href="https://cloud.baidu.com/doc/qianfan/s/wmh4sv6ya">百度千帆计费</a></li>
+        <li><a href="https://longcat.chat/platform/docs/zh/api-pay-as-you-go">美团 LongCat 按量</a></li>
+        <li><a href="https://www.xfyun.cn/doc/spark/TokenPlan.html">讯飞 Astron Token Plan</a></li>
+        <li><a href="https://cloud.baidu.com/doc/qianfan/s/Dmrabu8b6">千帆 Token Plan 个人版</a></li>
+        <li><a href="https://artificialanalysis.ai/leaderboards/models/">Artificial Analysis Intelligence Index</a></li>
+      </ol>
+      <p>价格会变。下单前以各厂商控制台为准。本页仅作横向对照，不构成采购建议。</p>
+    </section>
+  </main>
+
+<script>
+const USD_CNY = 7;
+const BUY = {
+  openai: "https://platform.openai.com/docs/pricing",
+  anthropic: "https://platform.claude.com/docs/en/about-claude/pricing",
+  google: "https://ai.google.dev/gemini-api/docs/pricing",
+  xai: "https://docs.x.ai/docs/models",
+  deepseek: "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+  qwen: "https://help.aliyun.com/zh/model-studio/model-pricing",
+  kimi: "https://platform.kimi.com/",
+  doubao: "https://www.volcengine.com/product/doubao",
+  glm: "https://bigmodel.cn/pricing",
+  mimo: "https://mimo.mi.com/docs/zh-CN/price/pay-as-you-go",
+  minimax: "https://platform.minimaxi.com/docs/guides/pricing-paygo",
+  step: "https://platform.stepfun.com/docs/zh/guides/pricing/details",
+  hunyuan: "https://cloud.tencent.cn/document/product/1823/130055",
+  ernie: "https://cloud.baidu.com/doc/qianfan/s/wmh4sv6ya",
+  longcat: "https://longcat.chat/platform/docs/zh/api-pay-as-you-go",
+  spark: "https://www.xfyun.cn/doc/spark/TokenPlan.html",
+  zhinao: "https://ai.360.com/open/zh/providers/360zhinao",
+  sky: "https://www.apifree.ai/model/skywork-ai/skyclaw-v1",
+  mistral: "https://mistral.ai/pricing"
+};
+const MODELS = [
+  { n:"GPT-5.5 Pro", v:"OpenAI", r:"海外", m:"multimodal", in:30, out:180, cache:null, unit:"usd", aa:null, url:BUY.openai, note:"旗舰推理，最贵档；AA 尚未公布 Index" },
+  { n:"Claude Fable 5", v:"Anthropic", r:"海外", m:"multimodal", in:10, out:50, cache:1, unit:"usd", aa:62.1, url:BUY.anthropic, note:"1M 上下文" },
+  { n:"Kimi K3", v:"月之暗面", r:"国内", m:"multimodal", in:20, out:100, cache:2, unit:"cny", aa:59.7, url:BUY.kimi, note:"1M 上下文，始终思考" },
+  { n:"GPT-5.6 Sol", v:"OpenAI", r:"海外", m:"multimodal", in:5, out:30, cache:0.5, unit:"usd", aa:60.9, url:BUY.openai, note:"当前旗舰；>272K 加价" },
+  { n:"Claude Opus 5", v:"Anthropic", r:"海外", m:"multimodal", in:5, out:25, cache:0.5, unit:"usd", aa:63.1, url:BUY.anthropic, note:"与 Opus 4.8 同价" },
+  { n:"Qwen3.8-Max", v:"阿里云百炼", r:"国内", m:"multimodal", in:12, out:36, cache:1.5, unit:"cny", aa:58.1, url:BUY.qwen, note:"国内刊例" },
+  { n:"Qwen3.7-Max", v:"阿里云百炼", r:"国内", m:"text", in:12, out:36, cache:null, unit:"cny", aa:46.7, url:BUY.qwen, note:"刊例；曾有限时5折" },
+  { n:"DeepSeek V4-Pro 高峰", v:"DeepSeek", r:"国内", m:"text", in:9, out:27, cache:0.3, unit:"cny", aa:53, url:BUY.deepseek, note:"工作日 9–12 / 14–18；AA 为 V4 Pro 0813 max" },
+  { n:"GLM-5.3", v:"智谱", r:"国内", m:"text", in:8, out:28, cache:2, unit:"cny", aa:59.5, url:BUY.glm, note:"与 GLM-5.2 同价，1M" },
+  { n:"GLM-5.2", v:"智谱", r:"国内", m:"text", in:8, out:28, cache:2, unit:"cny", aa:52.6, url:BUY.glm, note:"1M 上下文" },
+  { n:"GPT-5.4", v:"OpenAI", r:"海外", m:"multimodal", in:2.5, out:15, cache:0.25, unit:"usd", aa:53.1, url:BUY.openai },
+  { n:"Grok 4", v:"xAI", r:"海外", m:"multimodal", in:3, out:15, cache:null, unit:"usd", aa:null, url:BUY.xai },
+  { n:"Kimi K2.6", v:"月之暗面", r:"国内", m:"multimodal", in:6.5, out:27, cache:1.1, unit:"cny", aa:45.1, url:BUY.kimi, note:"256K" },
+  { n:"Doubao-Seed-2.1-pro", v:"字节火山", r:"国内", m:"multimodal", in:6, out:30, cache:1.2, unit:"cny", aa:null, url:BUY.doubao },
+  { n:"Doubao-Seed-Evolving", v:"字节火山", r:"国内", m:"text", in:6, out:30, cache:1.2, unit:"cny", aa:null, url:BUY.doubao, note:"Coding / Agent" },
+  { n:"ERNIE 5.0", v:"百度千帆", r:"国内", m:"text", in:6, out:24, cache:null, unit:"cny", aa:null, url:BUY.ernie, note:"输入≤32K 档" },
+  { n:"GLM-5.1", v:"智谱", r:"国内", m:"text", in:6, out:24, cache:1.3, unit:"cny", aa:41.0, url:BUY.glm, note:"输入≤32K 档" },
+  { n:"LongCat-2.0 刊例", v:"美团", r:"国内", m:"text", in:5, out:20, cache:0.1, unit:"cny", aa:34.0, url:BUY.longcat },
+  { n:"GLM-5V-Turbo", v:"智谱", r:"国内", m:"multimodal", in:5, out:22, cache:1.2, unit:"cny", aa:35.3, url:BUY.glm, note:"输入≤32K" },
+  { n:"DeepSeek V4-Pro 空闲", v:"DeepSeek", r:"国内", m:"text", in:4.5, out:13.5, cache:0.15, unit:"cny", aa:53, url:BUY.deepseek, note:"高峰半价" },
+  { n:"Kimi K2.5", v:"月之暗面", r:"国内", m:"multimodal", in:4, out:21, cache:0.7, unit:"cny", aa:36.0, url:BUY.kimi, note:"262K" },
+  { n:"ERNIE 5.1", v:"百度千帆", r:"国内", m:"text", in:4, out:18, cache:null, unit:"cny", aa:null, url:BUY.ernie, note:"输入≤32K 档" },
+  { n:"GLM-5", v:"智谱", r:"国内", m:"text", in:4, out:18, cache:1, unit:"cny", aa:40.6, url:BUY.glm, note:"输入≤32K 档" },
+  { n:"MiniMax-M2.7-highspeed", v:"MiniMax", r:"国内", m:"text", in:4.2, out:16.8, cache:0.42, unit:"cny", aa:null, url:BUY.minimax },
+  { n:"Doubao-Seed-2.1-turbo", v:"字节火山", r:"国内", m:"text", in:3, out:15, cache:0.6, unit:"cny", aa:null, url:BUY.doubao },
+  { n:"HY Vision 1.5", v:"腾讯混元", r:"国内", m:"multimodal", in:3, out:9, cache:null, unit:"cny", aa:null, url:BUY.hunyuan },
+  { n:"Spark X2", v:"讯飞星火", r:"国内", m:"text", in:3, out:3, cache:0.6, unit:"cny", aa:null, url:BUY.spark, note:"由积分 300/300 折算" },
+  { n:"MiMo-V2.5-Pro", v:"小米", r:"国内", m:"text", in:3, out:6, cache:0.025, unit:"cny", aa:43, url:BUY.mimo },
+  { n:"DeepSeek V4-Flash 高峰", v:"DeepSeek", r:"国内", m:"text", in:3, out:9, cache:0.1, unit:"cny", aa:52, url:BUY.deepseek, note:"AA 为 V4 Flash 0731 max" },
+  { n:"GPT-5.6 Terra", v:"OpenAI", r:"海外", m:"multimodal", in:2, out:12, cache:0.2, unit:"usd", aa:56.6, url:BUY.openai, note:"7月30日降20%" },
+  { n:"Gemini 3.1 Pro", v:"Google", r:"海外", m:"multimodal", in:2, out:12, cache:null, unit:"usd", aa:47.7, url:BUY.google, note:">200K 为 $4/$18" },
+  { n:"Grok 4.6", v:"xAI", r:"海外", m:"multimodal", in:2, out:6, cache:0.5, unit:"usd", aa:60.9, url:BUY.xai, note:"<200K 档" },
+  { n:"Claude Sonnet 5", v:"Anthropic", r:"海外", m:"multimodal", in:2, out:10, cache:0.2, unit:"usd", aa:55.3, url:BUY.anthropic, note:"$2/$10 已转正" },
+  { n:"Qwen3.7-Plus", v:"阿里云百炼", r:"国内", m:"multimodal", in:2, out:8, cache:0.4, unit:"cny", aa:39.4, url:BUY.qwen, note:"≤256K；限时8折 1.6/6.4", promoIn:1.6, promoOut:6.4 },
+  { n:"360zhinao-pro", v:"360智脑", r:"国内", m:"text", in:2, out:5, cache:null, unit:"cny", aa:null, url:BUY.zhinao },
+  { n:"LongCat-2.0 限时", v:"美团", r:"国内", m:"text", in:2, out:8, cache:0.04, unit:"cny", aa:34.0, url:BUY.longcat, promo:true, note:"上线限时折扣" },
+  { n:"MiniMax-M3", v:"MiniMax", r:"国内", m:"multimodal", in:2.1, out:8.4, cache:0.42, unit:"cny", aa:45.4, url:BUY.minimax, note:"≤512K，永久五折后" },
+  { n:"MiniMax-M2.7", v:"MiniMax", r:"国内", m:"text", in:2.1, out:8.4, cache:0.42, unit:"cny", aa:null, url:BUY.minimax },
+  { n:"Gemini 3.6 Flash", v:"Google", r:"海外", m:"multimodal", in:1.5, out:7.5, cache:0.15, unit:"usd", aa:51.6, url:BUY.google },
+  { n:"DeepSeek V4-Flash 空闲", v:"DeepSeek", r:"国内", m:"text", in:1.5, out:4.5, cache:0.05, unit:"cny", aa:52, url:BUY.deepseek },
+  { n:"step-3.7-flash", v:"阶跃星辰", r:"国内", m:"multimodal", in:1.35, out:8.1, cache:0.27, unit:"cny", aa:30.9, url:BUY.step, note:"图/视频理解" },
+  { n:"Claude Haiku 4.5", v:"Anthropic", r:"海外", m:"multimodal", in:1, out:5, cache:0.1, unit:"usd", aa:30, url:BUY.anthropic },
+  { n:"qwen3.8-flash", v:"阿里云百炼", r:"国内", m:"multimodal", in:1, out:3, cache:null, unit:"cny", aa:null, url:BUY.qwen },
+  { n:"Hunyuan Hy3", v:"腾讯云 TokenHub", r:"国内", m:"text", in:1, out:4, cache:0.25, unit:"cny", aa:42.2, url:BUY.hunyuan },
+  { n:"Spark X2 Flash", v:"讯飞星火", r:"国内", m:"text", in:1, out:2, cache:0.2, unit:"cny", aa:null, url:BUY.spark, note:"由积分 100/200 折算" },
+  { n:"MiMo-V2.5", v:"小米", r:"国内", m:"text", in:1, out:2, cache:0.02, unit:"cny", aa:38, url:BUY.mimo },
+  { n:"ERNIE 4.5 Turbo", v:"百度千帆", r:"国内", m:"text", in:0.8, out:3.2, cache:0.2, unit:"cny", aa:null, url:BUY.ernie },
+  { n:"GLM-5.3-Flash", v:"智谱", r:"国内", m:"multimodal", in:0.8, out:2.8, cache:0.23, unit:"cny", aa:57, url:BUY.glm, note:"刊例；限时两周5折 0.4/1.4", promoIn:0.4, promoOut:1.4 },
+  { n:"GPT-5.4 Mini", v:"OpenAI", r:"海外", m:"multimodal", in:0.75, out:4.5, cache:0.075, unit:"usd", aa:40.9, url:BUY.openai },
+  { n:"Gemini 3.7 Flash", v:"Google", r:"海外", m:"multimodal", in:0.75, out:3.75, cache:null, unit:"usd", aa:56.0, url:BUY.google, promo:true, note:"引入价至 2026-12-31" },
+  { n:"step-3.5-flash", v:"阶跃星辰", r:"国内", m:"text", in:0.7, out:2.1, cache:0.14, unit:"cny", aa:26.5, url:BUY.step },
+  { n:"Doubao-Seed-2.0-lite", v:"字节火山", r:"国内", m:"text", in:0.6, out:3.6, cache:null, unit:"cny", aa:null, url:BUY.doubao, note:"区间价下限" },
+  { n:"SkyClaw-v1.0", v:"昆仑天工", r:"国内", m:"text", in:0.5, out:4, cache:null, unit:"cny", aa:null, url:BUY.sky, note:"公开渠道价，或有免费窗" },
+  { n:"Mistral Large 3", v:"Mistral", r:"海外", m:"multimodal", in:0.5, out:1.5, cache:null, unit:"usd", aa:16, url:BUY.mistral },
+  { n:"Hunyuan-a13b", v:"腾讯混元", r:"国内", m:"text", in:0.5, out:2, cache:null, unit:"cny", aa:null, url:BUY.hunyuan },
+  { n:"SkyClaw-v1.0-lite", v:"昆仑天工", r:"国内", m:"text", in:0.3, out:2, cache:null, unit:"cny", aa:null, url:"https://www.apifree.ai/model/skywork-ai/skyclaw-v1-lite" },
+  { n:"Gemini 3.5 Flash-Lite", v:"Google", r:"海外", m:"multimodal", in:0.3, out:2.5, cache:null, unit:"usd", aa:37.4, url:BUY.google },
+  { n:"GPT-5 mini", v:"OpenAI", r:"海外", m:"multimodal", in:0.25, out:2, cache:0.125, unit:"usd", aa:25.8, url:BUY.openai },
+  { n:"GPT-5.6 Luna", v:"OpenAI", r:"海外", m:"multimodal", in:0.2, out:1.2, cache:0.02, unit:"usd", aa:52.3, url:BUY.openai, note:"7月30日降80%" },
+  { n:"Grok 4 Fast", v:"xAI", r:"海外", m:"multimodal", in:0.2, out:0.5, cache:null, unit:"usd", aa:null, url:BUY.xai },
+  { n:"GPT-5.4 Nano", v:"OpenAI", r:"海外", m:"multimodal", in:0.2, out:1.25, cache:0.02, unit:"usd", aa:39.7, url:BUY.openai },
+  { n:"qwen3.7-flash", v:"阿里云百炼", r:"国内", m:"multimodal", in:0.2, out:0.8, cache:0.04, unit:"cny", aa:null, url:BUY.qwen, note:"输入≤32K" },
+  { n:"Doubao-Seed-2.0-mini", v:"字节火山", r:"国内", m:"text", in:0.2, out:2, cache:null, unit:"cny", aa:null, url:BUY.doubao, note:"区间价下限" },
+  { n:"GPT-4o mini", v:"OpenAI", r:"海外", m:"multimodal", in:0.15, out:0.6, cache:0.075, unit:"usd", aa:6.7, url:BUY.openai },
+  { n:"Gemini 2.5 Flash-Lite", v:"Google", r:"海外", m:"multimodal", in:0.1, out:0.4, cache:null, unit:"usd", aa:6.7, url:BUY.google },
+  { n:"Mistral Small 4", v:"Mistral", r:"海外", m:"text", in:0.1, out:0.3, cache:null, unit:"usd", aa:20, url:BUY.mistral },
+  { n:"GPT-5 nano", v:"OpenAI", r:"海外", m:"text", in:0.05, out:0.4, cache:0.025, unit:"usd", aa:20.1, url:BUY.openai }
+];
+
+const PLANS = [
+  {
+    title: "小米 MiMo Token Plan",
+    url: "https://mimo.mi.com/docs/zh-CN/price/token-plan",
+    meta: "编程工具专用 API Key（tp-xxxxx）。Base URL：token-plan-cn.xiaomimimo.com。禁止脚本/业务后端。",
+    rows: [
+      ["Lite", "¥39 / $6", "4.1B Credits"],
+      ["Standard", "¥99 / $16", "11B Credits"],
+      ["Pro", "¥329 / $50", "38B Credits"],
+      ["Max", "¥659 / $100", "82B Credits"]
+    ],
+    eq: "mimo-v2.5 未命中输入 100 Credits/token、输出 200。Lite 全部跑 v2.5 时，约合输入 ¥0.95 / 百万，综合（100万入+25万出）约 ¥1.43，略低于按量 ¥1.50。夜间 0:00–8:00 消耗 ×0.8。年付 88 折。"
+  },
+  {
+    title: "阿里云百炼 Token Plan",
+    url: "https://help.aliyun.com/zh/model-studio/token-plan-personal-overview",
+    meta: "Credits 计量，覆盖 Qwen / DeepSeek / GLM 等。个人版按 5 小时 + 周窗口；团队按席位。",
+    rows: [
+      ["个人 Lite", "¥39 /月", "700 Credits / 5h"],
+      ["个人 Standard", "¥139 /月", "3000 Credits / 5h"],
+      ["个人 Pro", "¥499 /月", "12000 Credits / 5h"],
+      ["团队标准席", "¥150 /席/月 限时", "2.5万 Credits /月"]
+    ],
+    eq: "不同模型 Credits 倍率不同，无法直接换算成统一 token 单价。适合要在多家模型间切换的团队。"
+  },
+  {
+    title: "智谱 GLM Coding Plan",
+    url: "https://www.bigmodel.cn/glm-coding",
+    meta: "连续包月 + 每周 Credits。兼容 ZCode / Claude Code 等。新用户价已与海外看齐。",
+    rows: [
+      ["Lite", "¥118 /月", "1万 Credits /周"],
+      ["Pro", "¥538 /月", "6万 Credits /周"],
+      ["Max", "¥1078 /月", "14万 Credits /周"]
+    ],
+    eq: "包季 8 折、包年 7 折。另有 5 小时窗口。老用户 V1/V2 可按旧价续。"
+  },
+  {
+    title: "MiniMax Token Plan",
+    url: "https://platform.minimaxi.com/subscribe/token-plan",
+    meta: "订阅 Key 与按量 Key 隔离。覆盖 M3 / M2.7 / 图像 / 语音同一额度。按 5 小时 + 周窗口，不按百万 token 标价。",
+    rows: [
+      ["Plus", "¥49 /月", "约 3–4 Agent"],
+      ["Max", "¥119 /月", "约 4–5 Agent"],
+      ["Ultra", "¥469 /月", "约 6–7 Agent"]
+    ],
+    eq: "积分包 1000 积分 = ¥7，按刊例折算。Starter ¥29 仅老用户续订。"
+  },
+  {
+    title: "讯飞星辰 Astron Token Plan",
+    url: "https://maas.xfyun.cn/packageSubscription",
+    meta: "企业席位制。OpenAI / Anthropic 双协议。可调 Spark、GLM、DeepSeek、Kimi、MiniMax、Qwen。",
+    rows: [
+      ["标准成员", "¥200 /席/月", "2万积分 · 200万 TPM"],
+      ["高级成员", "¥600 /席/月", "6万积分 · 300万 TPM"],
+      ["尊享成员", "¥2000 /席/月", "20万积分 · 500万 TPM"]
+    ],
+    eq: "Spark-X2 输入/输出各 300 积分/百万。夜间与周末消耗 ×0.8。另有 Astron Coding Plan（约 ¥39 / ¥199）。"
+  },
+  {
+    title: "百度千帆 Token Plan 个人版",
+    url: "https://cloud.baidu.com/product/codingplan",
+    meta: "专属 Key。OpenAI：qianfan.baidubce.com/v2/tokenplan/personal。不区分模型与输入输出，统一扣 Token。",
+    rows: [
+      ["Mini", "¥9.9 /月", "1000万 Token"],
+      ["Lite", "¥40 /月", "4200万 Token"],
+      ["Pro", "¥200 /月", "2.3亿 Token"],
+      ["Max", "¥600 /月", "7亿 Token"]
+    ],
+    eq: "按官方文档刊例。营销页有首购五折（4.9 起）。折合约 ¥0.86–0.99 / 百万混合 Token。"
+  }
+];
+
+const state = {
+  region: "all",
+  modal: "all",
+  q: "",
+  sort: "blend",
+  dir: 1,
+  currency: "cny"
+};
+
+function toCNY(row, key) {
+  const promoKey = key === "in" ? "promoIn" : key === "out" ? "promoOut" : null;
+  let v = (promoKey && row[promoKey] != null) ? row[promoKey] : row[key];
+  if (v == null) return null;
+  return row.unit === "usd" ? v * USD_CNY : v;
+}
+
+function effective(row) {
+  const inn = toCNY(row, "in");
+  const out = toCNY(row, "out");
+  const cache = row.cache == null ? null : (row.unit === "usd" ? row.cache * USD_CNY : row.cache);
+  return { inn, out, cache, blend: inn + 0.25 * out };
+}
+
+function money(v) {
+  if (v == null) return "—";
+  const n = state.currency === "usd" ? v / USD_CNY : v;
+  const prefix = state.currency === "usd" ? "$" : "¥";
+  if (n >= 100) return prefix + n.toFixed(0);
+  if (n >= 10) return prefix + n.toFixed(1);
+  if (n >= 1) return prefix + n.toFixed(2);
+  return prefix + n.toFixed(3);
+}
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  return MODELS.filter(m => {
+    if (state.region !== "all" && m.r !== state.region) return false;
+    if (state.modal !== "all" && m.m !== state.modal) return false;
+    if (q && !(m.n + m.v).toLowerCase().includes(q)) return false;
+    return true;
+  }).map((m, i) => {
+    const e = effective(m);
+    return { ...m, ...e, i };
+  }).sort((a, b) => {
+    const key = state.sort;
+    if (key === "aa") {
+      const am = a.aa == null, bm = b.aa == null;
+      if (am && bm) return 0;
+      if (am) return 1;
+      if (bm) return -1;
+      return (a.aa - b.aa) * state.dir;
+    }
+    let av = a[key], bv = b[key];
+    if (key === "name") { av = a.n; bv = b.n; }
+    if (key === "region") { av = a.r; bv = b.r; }
+    if (av == null) av = Infinity;
+    if (bv == null) bv = Infinity;
+    if (typeof av === "string") return av.localeCompare(bv, "zh") * state.dir;
+    return (av - bv) * state.dir;
+  });
+}
+
+function renderStats(rows) {
+  const cheapest = rows[0];
+  const dear = [...rows].sort((a,b) => b.blend - a.blend)[0];
+  const cn = rows.filter(r => r.r === "国内").length;
+  const overseas = rows.length - cn;
+  document.getElementById("stats").innerHTML = `
+    <article class="stat"><div class="label">收录模型</div><div class="value">${rows.length}</div><div class="hint">国内 ${cn} · 海外 ${overseas}</div></article>
+    <article class="stat"><div class="label">综合最便宜</div><div class="value">${cheapest ? cheapest.n : "—"}</div><div class="hint">${cheapest ? money(cheapest.blend) + " / 综合档" : ""}</div></article>
+    <article class="stat"><div class="label">综合最贵</div><div class="value">${dear ? dear.n : "—"}</div><div class="hint">${dear ? money(dear.blend) : ""}</div></article>
+    <article class="stat"><div class="label">价差</div><div class="value">${cheapest && dear ? Math.round(dear.blend / cheapest.blend) + "×" : "—"}</div><div class="hint">同一综合口径</div></article>`;
+}
+
+function renderTable() {
+  const rows = filtered();
+  const max = Math.max(...rows.map(r => r.blend), 1);
+  const tb = document.getElementById("tbody");
+  const empty = document.getElementById("empty");
+  if (!rows.length) {
+    tb.innerHTML = "";
+    empty.hidden = false;
+    renderStats(MODELS.map(m => ({...m, ...effective(m)})).sort((a,b)=>a.blend-b.blend));
+    pinHead();
+    return;
+  }
+  empty.hidden = true;
+  const ranked = [...rows].sort((a,b)=>a.blend-b.blend);
+  renderStats(ranked);
+  tb.innerHTML = rows.map((m) => {
+    const rank = ranked.findIndex(x => x.n === m.n && x.v === m.v) + 1;
+    const cheap = rank <= 8;
+    const dear = rank >= ranked.length - 4;
+    const width = Math.max(6, Math.min(100, (m.blend / max) * 100));
+    const tags = [
+      m.m === "multimodal" ? "多模态" : "文本",
+      m.promo || m.promoIn != null ? "活动价" : ""
+    ].filter(Boolean);
+    return `<tr>
+      <td class="rank">${rank}</td>
+      <td><div class="model">${m.url ? `<a href="${m.url}" target="_blank" rel="noopener">${m.n}</a>` : m.n}</div><div class="sub">${m.v}</div></td>
+      <td>${m.r}</td>
+      <td class="num">${money(m.inn)}</td>
+      <td class="num">${money(m.out)}</td>
+      <td class="num ${cheap ? "cheap" : dear ? "dear" : ""}">${money(m.blend)}<div class="bar"><i style="width:${width}%"></i></div></td>
+      <td class="num">${m.aa == null ? "—" : m.aa}</td>
+      <td class="hide-sm num">${money(m.cache)}</td>
+      <td class="hide-sm">${tags.map(t => `<span class="tag${t==="活动价"?" promo":""}">${t}</span>`).join("")}${m.note || ""}</td>
+    </tr>`;
+    }).join("");
+  pinHead();
+}
+
+function renderFilters() {
+  const groups = [
+    [["all","全部地区"],["国内","国内"],["海外","海外"]],
+    [["all","全部形态"],["text","文本"],["multimodal","多模态"]]
+  ];
+  const el = document.getElementById("filters");
+  el.innerHTML = groups.map((g, gi) => g.map(([id, label]) => {
+    const on = gi === 0 ? state.region === id : state.modal === id;
+    return `<button class="chip${on?" on":""}" data-g="${gi}" data-id="${id}" type="button">${label}</button>`;
+  }).join("")).join("") + `<input class="search" id="q" placeholder="搜索模型 / 厂商" value="${state.q}">`;
+  el.querySelectorAll(".chip").forEach(btn => {
+    btn.addEventListener("pointerdown", () => btn.classList.add("press"));
+    btn.addEventListener("click", () => {
+      if (btn.dataset.g === "0") state.region = btn.dataset.id;
+      else state.modal = btn.dataset.id;
+      renderFilters();
+      renderTable();
+      syncStickyHead();
+    });
+  });
+  el.querySelector("#q").addEventListener("input", e => {
+    state.q = e.target.value;
+    renderTable();
+  });
+}
+
+function pinHead() {
+  const table = document.querySelector(".table-card > table");
+  const pin = document.getElementById("headPin");
+  if (!table || !pin || !table.tHead) return;
+  const clone = document.createElement("table");
+  clone.appendChild(table.tHead.cloneNode(true));
+  pin.replaceChildren(clone);
+  const applyWidths = () => {
+    const row = table.tBodies[0]?.rows[0];
+    const cells = clone.tHead?.rows[0]?.cells;
+    if (!row || !cells) return;
+    [...cells].forEach((cell, i) => {
+      if (!row.cells[i]) return;
+      cell.style.width = row.cells[i].getBoundingClientRect().width + "px";
+    });
+    clone.style.width = table.getBoundingClientRect().width + "px";
+  };
+  requestAnimationFrame(applyWidths);
+  clone.querySelectorAll("th[data-sort]").forEach(th => {
+    th.addEventListener("click", () => {
+      const s = th.dataset.sort;
+      if (state.sort === s) state.dir *= -1;
+      else { state.sort = s; state.dir = s === "aa" ? -1 : 1; }
+      renderTable();
+    });
+  });
+}
+
+function renderPlans() {
+  document.getElementById("planCards").innerHTML = PLANS.map(p => `
+    <article class="plan">
+      <h3>${p.title}</h3>
+      <div class="meta">${p.meta}</div>
+      <table class="tiers">${p.rows.map(r => `<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</table>
+      <p class="eq">${p.eq}</p>
+      <a class="plan-buy" href="${p.url}" target="_blank" rel="noopener">开通订阅</a>
+    </article>`).join("");
+}
+
+document.getElementById("currencyBtn").addEventListener("click", e => {
+  state.currency = state.currency === "cny" ? "usd" : "cny";
+  e.currentTarget.textContent = state.currency === "cny" ? "人民币" : "美元";
+  renderTable();
+});
+
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const next = cur === "dark" ? "light" : cur === "light" ? null : "dark";
+  if (next) document.documentElement.setAttribute("data-theme", next);
+  else document.documentElement.removeAttribute("data-theme");
+});
+
+function syncStickyHead() {
+  const nav = document.querySelector(".nav");
+  const bar = document.querySelector(".toolbar");
+  const top = Math.round(nav.getBoundingClientRect().height + bar.getBoundingClientRect().height);
+  document.documentElement.style.setProperty("--sticky-head-top", top + "px");
+}
+
+renderFilters();
+renderTable();
+renderPlans();
+syncStickyHead();
+new ResizeObserver(syncStickyHead).observe(document.querySelector(".toolbar"));
+window.addEventListener("resize", () => {
+  syncStickyHead();
+  pinHead();
+});
+</script>
+</body>
+</html>
