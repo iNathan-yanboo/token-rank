@@ -50,6 +50,21 @@ export function norm(s) {
   return String(s).toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, "");
 }
 
+export function versionTokens(s) {
+  return String(s).toLowerCase().match(/\d+(?:\.\d+)*/g) || [];
+}
+
+export function coreName(s) {
+  return String(s)
+    .replace(/^[^:]+:\s*/, "")
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\b(max|xhigh|high|medium|low|preview|default|fallback|reasoning|batch)\b/gi, " ")
+    .replace(/\b(高峰|空闲|刊例|限时)\b/g, " ")
+    .replace(/\b\d{4}\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function today(d = new Date()) {
   const tz = new Date(d.getTime() + 8 * 3600 * 1000);
   return tz.toISOString().slice(0, 10);
@@ -87,18 +102,47 @@ export async function writeSnapshot(data, { date } = {}) {
   return { day, path: join(HISTORY_DIR, `${day}.json`) };
 }
 
+function nameKeys(s) {
+  const core = coreName(s);
+  const keys = [core];
+  const stripped = core.replace(/^claude\s+/i, "");
+  if (stripped !== core) keys.push(stripped);
+  return keys;
+}
+
 export function matchName(query, candidates) {
-  const q = norm(query);
-  if (!q) return null;
+  const qKeys = nameKeys(query).map(k => ({ raw: k, n: norm(k), v: versionTokens(k) }));
+  qKeys.forEach(k => { if (!k.n) k.n = ""; });
+  if (!qKeys.some(k => k.n)) return null;
+  const qv = qKeys[0].v;
   let best = null;
   for (const c of candidates) {
-    const n = norm(c);
-    if (!n) continue;
-    if (n === q) return c;
-    if (n.includes(q) || q.includes(n)) {
-      const score = Math.min(n.length, q.length) / Math.max(n.length, q.length);
-      if (!best || score > best.score) best = { c, score };
+    const cKeys = nameKeys(c).map(k => ({ raw: k, n: norm(k), v: versionTokens(k) }));
+    let ok = false;
+    let score = 0;
+    for (const q of qKeys) {
+      for (const ck of cKeys) {
+        if (!q.n || !ck.n) continue;
+        const cv = ck.v;
+        if (qv.length && !qv.every(t => cv.includes(t))) continue;
+        const extra = cv.filter(t => !qv.includes(t) && !/^\d{4,}$/.test(t));
+        if (qv.length && extra.length) continue;
+        if (q.n === ck.n) {
+          ok = true;
+          score = 1;
+          break;
+        }
+        if (ck.n.includes(q.n) || q.n.includes(ck.n)) {
+          const s = Math.min(ck.n.length, q.n.length) / Math.max(ck.n.length, q.n.length);
+          if (s >= 0.85 && s > score) {
+            ok = true;
+            score = s;
+          }
+        }
+      }
+      if (score === 1) break;
     }
+    if (ok && (!best || score > best.score)) best = { c, score };
   }
-  return best && best.score >= 0.55 ? best.c : null;
+  return best ? best.c : null;
 }
